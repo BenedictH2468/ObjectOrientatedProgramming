@@ -246,9 +246,9 @@ class heal(ability):
         super().__init__(cost, target, name)
         self._stat = stat
         self._multiplier = multiplier
-        self._movetype
+        self._movetype = movetype
     def cast(self, userStats, ModUStats):
-        newSP = consumeSP(self, userStats[3])
+        newSP = self.consumeSP(userStats[3])
         userStats[1] += (ModUStats[self._stat] * self._multiplier)
         if userStats[1] > userStats[0]:
             userStats[1] = userStats[0]
@@ -266,10 +266,8 @@ class status(ability):
         self._turns = turns
         self._movetype = movetype
     def cast(self, sp, ustatmods, estatmods):
-        newSP = status.consumeSP(self, sp)
+        newSP = self.consumeSP(sp)
         alreadyActive = False
-        print(ustatmods)
-        print(len(ustatmods))
         if self._target == 1:
             for x in range(0, int(len(estatmods) / 3)):
                 if estatmods[x] == self._name:
@@ -314,7 +312,7 @@ class damage(ability):
         self._defmult = defmult
         self._movetype = movetype
     def cast(self, userStats, enemyStats, sp):
-        newSP = damage.consumeSP(self, sp)
+        newSP = self.consumeSP(sp)
         dmg = ((userStats[self._dmgstat] * self._dmgmult) - (enemyStats[self._defstat] * self._defmult))
         dmg = int(dmg * enemyStats[self._dmgtype])
         return newSP, dmg
@@ -379,9 +377,9 @@ def monsterStatCalc(monster, monsterstatmods):
 def revealAction(enemyActions, luck):
     number = random.randint(1, 100)
     number+= luck
-    if number < 36:
+    if number < 31:
         number = 1
-    elif number < 86:
+    elif number < 81:
         number = 2
     else:
         number = 3
@@ -445,10 +443,10 @@ while True:
     if choice == '4':
         monster = ASSAULTRON()
         break
-
 #its combat time JIMBO
 playerStatMods = []
 monsterStatMods = []
+player._itemList = ['MEDKIT', 2, 'RECONSTRUCTOR', 1, 'ENERGY DRINK', 2, 'GLUCOSE SYRINGE', 1]
 monsterStatModCalc = [0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 playerStatModCalc = [0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 print('Player     HP', player._stats[1], '/', player._stats[0], '     SP', player._stats[3], '/', player._stats[2])
@@ -459,9 +457,9 @@ while True:
     for x in range(0, int(len(playerStatMods) / 3)):
         playerStatMods[x+2] -= 1
         if playerStatMods[x+2] < 1:
-            del playerStatMods
-            del playerStatMods
-            del playerStatMods
+            del playerStatMods[x]
+            del playerStatMods[x]
+            del playerStatMods[x]
     for x in range(0, int(len(monsterStatMods) / 3)):
         monsterStatMods[x+2] -= 1
         if monsterStatMods[x+2] < 1:
@@ -472,8 +470,6 @@ while True:
     enemyActions = revealAction(monsterAction, playerStatModCalc[3])
     print('Enemy actions:', enemyActions)
     playerAction = player.chooseAction()
-    battleFavour = 0
-    playerFavour = True
     for x in range(0,6):
         input()
         pAbilityUse = False
